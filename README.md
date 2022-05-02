@@ -9,7 +9,7 @@ https://gihyo.jp/book/2022/978-4-297-12775-6
 | basics | Basic study of opencv, numpy |
 | imgproc | Image proc for pre-post process |
 | imgcodec videoio | Video capture, Image capture |
-| dnn | Deep nural network |
+| dnn | Deep neural network |
 
 
 # Model
