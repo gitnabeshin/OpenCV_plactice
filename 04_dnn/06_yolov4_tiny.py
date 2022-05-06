@@ -32,11 +32,11 @@ def dnn_main():
         raise IOError("can't open camera")
 
     # directory = os.path.dirname(__file__)
-    directory = './model/7.3/yolov4'
+    directory = './model/7.3/yolov4-tiny'
 
     # load DNN from file
-    weights = os.path.join(directory, "yolov4.weights")
-    config = os.path.join(directory, "yolov4.cfg")
+    weights = os.path.join(directory, "yolov4-tiny.weights")
+    config = os.path.join(directory, "yolov4-tiny.cfg")
     model = cv2.dnn_DetectionModel(weights, config)
 
     # load classname & colorlist

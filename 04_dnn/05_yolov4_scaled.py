@@ -32,11 +32,17 @@ def dnn_main():
         raise IOError("can't open camera")
 
     # directory = os.path.dirname(__file__)
-    directory = './model/7.3/yolov4'
+    directory = './model/7.3/scaled-yolov4'
 
     # load DNN from file
-    weights = os.path.join(directory, "yolov4.weights")
-    config = os.path.join(directory, "yolov4.cfg")
+    weights = os.path.join(directory, "yolov4-csp.weights")
+    config = os.path.join(directory, "yolov4-csp.cfg")
+    # weights = os.path.join(directory, "yolov4-p5.weights")
+    # config = os.path.join(directory, "yolov4-p5.cfg")
+    # weights = os.path.join(directory, "yolov4-p6.weights")
+    # config = os.path.join(directory, "yolov4-p6.cfg")
+    # weights = os.path.join(directory, "yolov4x-mish.weights")
+    # config = os.path.join(directory, "yolov4x-mish.cfg")
     model = cv2.dnn_DetectionModel(weights, config)
 
     # load classname & colorlist
@@ -46,10 +52,10 @@ def dnn_main():
 
     # set params
     scale = 1.0 /255.0
-    size = (320, 320)
-    # size = (416, 416)
-    # size = (512, 512)
-    # size = (608, 608)
+    size = (512, 512)      # yolov4-csp
+    # size = (640, 640)    # yolov4-p5
+    # size = (896, 896)    # yolov4-p6
+    # size = (1280, 1280)  # yolov4x-mish
     mean = (0.00, 0.0, 0.0)
     swap = True
     crop = False

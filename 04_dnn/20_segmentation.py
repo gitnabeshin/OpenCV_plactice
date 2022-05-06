@@ -1,9 +1,9 @@
 # ------------------------------------------------------------------------------------
-# Object Detection (YOLO v4)
+# Segmentaion (DeepLab v3)
 # make sure download DNN Model from support page
 # $ cd 04_dnn/model
-# $ wget https://gihyo.jp/assets/files/book/2022/978-4-297-12775-6/download/7.3.zip
-# $ wget https://github.com/pjreddie/darknet/blob/master/data/coco.names
+# $ wget https://gihyo.jp/assets/files/book/2022/978-4-297-12775-6/download/7.5.zip
+# $ wget https://github.com/NVIDIA/DIGITS/blob/master/examples/semantic-segmentation/pascal-voc-classes.txt
 # ------------------------------------------------------------------------------------
 
 import os
@@ -32,30 +32,29 @@ def dnn_main():
         raise IOError("can't open camera")
 
     # directory = os.path.dirname(__file__)
-    directory = './model/7.3/yolov4'
+    directory = './model/7.5/deeplab-v3'
 
     # load DNN from file
-    weights = os.path.join(directory, "yolov4.weights")
-    config = os.path.join(directory, "yolov4.cfg")
-    model = cv2.dnn_DetectionModel(weights, config)
+    weights = os.path.join(directory, "optimized_graph_voc.pb")
+    # weights = os.path.join(directory, "optimized_graph_cityscapes.pb")
+    model = cv2.dnn_SegmentationModel(weights)
 
     # load classname & colorlist
-    name_file = os.path.join('./', "coco.names")
+    name_file = os.path.join('./', "pascal-voc-classes.txt")
     classes = read_classes(name_file)
     colors = get_colors(len(classes))
+    # set background color black
+    if len(classes) > 0:
+        colors[0] = (0, 0, 0)
 
     # set params
     scale = 1.0 /255.0
-    size = (320, 320)
-    # size = (416, 416)
-    # size = (512, 512)
-    # size = (608, 608)
-    mean = (0.00, 0.0, 0.0)
+    size = (513, 513)         # VOC
+    # size = (2049, 1025)     # CityScapes
+    mean = (127.5, 127.5, 127.5)
     swap = True
     crop = False
     model.setInputParams(scale, size, mean, swap, crop)
-    # proccess NMS each Class
-    model.setNmsAcrossClasses(False)
 
     pTime = 0
     cTime = 0
@@ -66,18 +65,21 @@ def dnn_main():
             cv2.waitKey(0)
             break
 
-        # face detection
-        confidence_threshold = 0.6
-        # nms:Non-Maximum Suppression (0.4: intersection rate of 2 candidate region)
-        nms_threshold = 0.4
-        class_ids, confidences, boxes = model.detect(image, confidence_threshold, nms_threshold)
+        # get maskdata(each pixel has own class id)
+        mask = model.segment(image)
 
-        # draw bounding box
-        for class_id, confidence, box in zip(class_ids, confidences, boxes):
-            thickness = 2
-            color = colors[class_id]
-            cv2.rectangle(image, box, color, thickness, cv2.LINE_AA)
-            cv2.putText(image, f'{classes[class_id]}({confidence:.3f})', (box[0], box[1] - 5), cv2.FONT_HERSHEY_PLAIN, 2, color, 2)
+        # convert list(mask) to ndarray(color table. same format to image)
+        color_mask = np.array(colors, dtype=np.uint8)[mask]
+
+        # expand mask to input image size
+        height, width, _ = image.shape
+        color_mask = cv2.resize(color_mask, (width, height), cv2.INTER_NEAREST)
+
+        # Alpha brending
+        alpha = 0.5
+        beta = 1.0 - alpha
+        gamma = 0.0
+        image = cv2.addWeighted(image, alpha, color_mask, beta, gamma)
 
         # Frame rate
         cTime = time.time()
@@ -86,7 +88,8 @@ def dnn_main():
 
         cv2.putText(image, 'PRESS q to exit.', (12, 40), cv2.FONT_HERSHEY_PLAIN, 2, (255, 0, 0), 2)
         cv2.putText(image,  f'FPS: {int(fps)}', (12, 80), cv2.FONT_HERSHEY_PLAIN, 2, (255, 0, 0), 2)
-        cv2.imshow('object_detection', image)
+        cv2.imshow('segmentation', image)
+        # cv2.imshow('mask', color_mask)
 
         key = cv2.waitKey(10)
         if key == ord('q'):
