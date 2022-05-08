@@ -11,6 +11,10 @@ https://gihyo.jp/book/2022/978-4-297-12775-6
 | imgcodec videoio | Video capture, Image capture |
 | dnn | Deep neural network |
 
+<img width="856" alt="imgproc" src="https://user-images.githubusercontent.com/52347942/167297521-02fb8493-3cc7-414a-96dd-c53a7c29f604.png">
+
+<img width="1144" alt="text detection" src="https://user-images.githubusercontent.com/52347942/167298108-6995973d-e4cf-4595-8ca3-86b13c391a9e.png">
+
 
 # Model
 
